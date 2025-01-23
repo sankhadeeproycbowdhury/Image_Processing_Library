@@ -1,0 +1,2 @@
+sankhadeeproychowdhury@sankhadeeps-MacBook-Air image_processing % g++ -std=c++17 main.cpp -o image_processor -I. `pkg-config --cflags --libs opencv4`
+sankhadeeproychowdhury@sankhadeeps-MacBook-Air image_processing % ./image_processor                                                                  
