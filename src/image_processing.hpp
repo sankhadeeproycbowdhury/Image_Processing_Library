@@ -276,7 +276,6 @@ public:
     }
 
 
-
 private:
     std::vector<std::vector<float>> createGaussianKernel(int size) {
         std::vector<std::vector<float>> kernel(

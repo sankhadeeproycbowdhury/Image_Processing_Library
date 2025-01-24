@@ -4,7 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include <string>
-// #include "crow_all.h"
+
 
 std::string uploadedImagePath = "uploaded_image.jpg"; // Path for the uploaded image
 std::string processedImagePath = "processed_image.jpg"; // Path for the processed image
@@ -114,7 +114,8 @@ int main(){
     // Adjust brightness
     CROW_ROUTE(app, "/brightness/<int>").methods(crow::HTTPMethod::Post)([](int adjustment) {
         try {
-            Image myImage = convertToImageClass(uploadedImagePath);
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
             myImage.brightnessAdjust(adjustment);
             saveImage(myImage, processedImagePath);
             return crow::response(200, "Brightness adjusted and image saved.");
@@ -126,7 +127,8 @@ int main(){
     // Adjust contrast
     CROW_ROUTE(app, "/contrast/<float>").methods(crow::HTTPMethod::Post)([](float factor) {
         try {
-            Image myImage = convertToImageClass(uploadedImagePath);
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
             myImage.contrastAdjust(factor);
             saveImage(myImage, processedImagePath);
             return crow::response(200, "Contrast adjusted and image saved.");
@@ -135,13 +137,131 @@ int main(){
         }
     });
 
+    // Adjust saturation
+    CROW_ROUTE(app, "/saturation/<float>").methods(crow::HTTPMethod::Post)([](float factor) {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.adjustSaturation(factor);
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Saturation adjusted and image saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Invert
+    CROW_ROUTE(app, "/invert").methods(crow::HTTPMethod::Post)([]() {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.invert();
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Image inverted and saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Apply GaussianBlur
+    CROW_ROUTE(app, "/gaussianblur/<int>").methods(crow::HTTPMethod::Post)([](int kernelSize) {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.applyGaussianBlur(kernelSize);
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "GaussianBlur applied and image saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Apply VignetteEffect
+    CROW_ROUTE(app, "/vignetteffect/<float>").methods(crow::HTTPMethod::Post)([](float strength) {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.addVignetteEffect(strength);
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "VignetteEffect applied and image saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Reflect Horizontally
+    CROW_ROUTE(app, "/reflectHorizontally").methods(crow::HTTPMethod::Post)([]() {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.reflectHorizontally();
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Image Reflected Horizontally and saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Reflect Vertically
+    CROW_ROUTE(app, "/reflectVertically").methods(crow::HTTPMethod::Post)([]() {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.reflectVertically();
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Image Reflected Vertically and saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Edge Detection
+    CROW_ROUTE(app, "/detectEdge").methods(crow::HTTPMethod::Post)([]() {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.sobelEdgeDetection();
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Edge Detection Complete");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
     // Convert to grayscale
     CROW_ROUTE(app, "/grayscale").methods(crow::HTTPMethod::Post)([]() {
         try {
-            Image myImage = convertToImageClass(uploadedImagePath);
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
             myImage.rgbToGrayscale();
             saveImage(myImage, processedImagePath);
             return crow::response(200, "Image converted to grayscale and saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Convert to sepia
+    CROW_ROUTE(app, "/sepia").methods(crow::HTTPMethod::Post)([]() {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.convertToSepia();
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Image converted to sepia and saved.");
+        } catch (const std::exception& e) {
+            return crow::response(500, std::string("Error: ") + e.what());
+        }
+    });
+
+    // Image Compression
+    CROW_ROUTE(app, "/compress/<float>").methods(crow::HTTPMethod::Post)([](float quality) {
+        try {
+            std::string pathToLoad = std::filesystem::exists(processedImagePath) ? processedImagePath : uploadedImagePath;
+            Image myImage = convertToImageClass(pathToLoad);
+            myImage.compressImage(quality);
+            saveImage(myImage, processedImagePath);
+            return crow::response(200, "Image compressed and saved.");
         } catch (const std::exception& e) {
             return crow::response(500, std::string("Error: ") + e.what());
         }
