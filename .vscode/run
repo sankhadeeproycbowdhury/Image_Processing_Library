@@ -1,2 +1,5 @@
 sankhadeeproychowdhury@sankhadeeps-MacBook-Air image_processing % g++ -std=c++17 main.cpp -o image_processor -I. `pkg-config --cflags --libs opencv4`
-sankhadeeproychowdhury@sankhadeeps-MacBook-Air image_processing % ./image_processor                                                                  
+sankhadeeproychowdhury@sankhadeeps-MacBook-Air image_processing % ./image_processor    
+
+g++ app.cpp -o app -I/opt/homebrew/Cellar/crow/1.2.1/include -I/opt/homebrew/Cellar/asio/1.30.2/include -lpthread -std=c++17
+./app
