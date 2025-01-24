@@ -1,6 +1,9 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "vector": "cpp"
+        "vector": "cpp",
+        "ios": "cpp",
+        "string": "cpp",
+        "stdexcept": "cpp"
     }
 }
