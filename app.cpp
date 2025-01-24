@@ -63,10 +63,19 @@ int main(){
     //define your crow application
     crow::SimpleApp app; 
 
+    // CORS headers middleware
+    app.middleware<crow::CORSHandler>([](crow::request& req) {
+        crow::response res;
+        res.set_header("Access-Control-Allow-Origin", "*");
+        res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        return res;
+    });
+
 
     //define your endpoint at the root directory
     CROW_ROUTE(app, "/")([](){
-        return "Hello world";
+        return "Image Processing API";
     });
 
     // Define POST endpoint for image upload
