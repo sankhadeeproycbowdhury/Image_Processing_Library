@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Process</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        select, input[type="file"], button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload and Process Image</h1>
+        <form id="imageForm">
+            <input type="file" id="imageInput" accept="image/*" required>
+
+            <select id="processSelect" required>
+                <option value="" disabled selected>Select a process</option>
+                <option value="brightness">Adjust Brightness</option>
+                <option value="contrast">Adjust Contrast</option>
+                <option value="grayscale">Convert to Grayscale</option>
+            </select>
+
+            <div id="processParameters" style="display: none;">
+                <!-- Dynamic input fields will be added here -->
+            </div>    
+
+            <button type="button" id="processButton">Apply Process</button>
+        </form>
+
+        <div id="output">
+            <h3>Processed Image:</h3>
+            <img id="processedImage" src="../processed_image.jpg" alt="Processed image will appear here">
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('imageForm');
+        const imageInput = document.getElementById('imageInput');
+        const processSelect = document.getElementById('processSelect');
+        const processParameters = document.getElementById('processParameters');
+        const processButton = document.getElementById('processButton');
+        const processedImage = document.getElementById('processedImage');
+
+        processSelect.addEventListener('change', (event) => {
+            const selectedProcess = event.target.value;
+        
+            // Clear existing inputs
+            processParameters.innerHTML = '';
+        
+            // Add specific input fields based on the selected process
+            if (selectedProcess === 'brightness') {
+                const label = document.createElement('label');
+                label.innerText = 'Brightness Level (1-100):';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'brightnessLevel';
+                input.min = 1;
+                input.max = 100;
+                input.required = true;
+                processParameters.appendChild(label);
+                processParameters.appendChild(input);
+            } else if (selectedProcess === 'contrast') {
+                const label = document.createElement('label');
+                label.innerText = 'Contrast Level (1-100):';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = 'contrastLevel';
+                input.min = 1;
+                input.max = 100;
+                input.required = true;
+                processParameters.appendChild(label);
+                processParameters.appendChild(input);
+            }
+        
+            // Show the parameters section only if there's something to display
+            processParameters.style.display = processParameters.innerHTML ? 'block' : 'none';
+        });
+        
+        async function processImage() {
+            const file = imageInput.files[0];
+            const process = processSelect.value;
+
+            if (!file) {
+                alert('Please select an image to upload.');
+                return;
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer(); // Convert file to binary data
+                // Step 1: Upload the image
+                const uploadResponse = await fetch('http://localhost:18080/uploadImage', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/octet-stream'},
+                    body: arrayBuffer
+                });
+
+                if (!uploadResponse.ok) {
+                    alert('Failed to upload the image.');
+                    return;
+                }
+
+                // Step 2: Apply the selected process
+                let processResponse = null;
+
+                if(process === 'brightness'){
+                    processResponse = await fetch('http://localhost:18080/brightness/' + document.getElementById('brightnessLevel').value, {method: 'POST'});
+                }else if(process === 'contrast'){
+                    processResponse = await fetch('http://localhost:18080/contrast/' + document.getElementById('contrastLevel').value, {method: 'POST'});
+                }else{
+                    processResponse = await fetch('http://localhost:18080/grayscale', {method: 'POST'});
+                }
+        
+                if (!processResponse.ok) {
+                    alert('Failed to apply the process.');
+                    return;
+                }
+        
+                // Step 3: Fetch and display the processed image
+                // const imageBlob = await fetch('http://localhost:18080/getImage').then(res => res.blob());
+                // const imageUrl = URL.createObjectURL(imageBlob);
+                // processedImage.src = imageUrl;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Add click event listener to the button
+        processButton.addEventListener('click', processImage);
+
+        // Prevent form submission just in case
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            return false;
+        });
+    </script>
+</body>
+</html>
+
+

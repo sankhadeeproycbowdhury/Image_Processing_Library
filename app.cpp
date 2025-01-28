@@ -10,6 +10,26 @@ std::string uploadedImagePath = "uploaded_image.jpg"; // Path for the uploaded i
 std::string processedImagePath = "processed_image.jpg"; // Path for the processed image
 
 
+// Middleware for CORS
+struct CORS {
+    struct context {}; // Required context structure (can be empty if unused)
+
+    // Before handling a request
+    void before_handle(crow::request& req, crow::response& res, context& /*ctx*/) {
+        res.add_header("Access-Control-Allow-Origin", "*");
+        res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.add_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    }
+
+    // After handling a request
+    void after_handle(crow::request& /*req*/, crow::response& res, context& /*ctx*/) {
+        res.add_header("Access-Control-Allow-Origin", "*");
+        res.add_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.add_header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    }
+};
+
+
 Image convertToImageClass(const std::string& imagePath) {
     cv::Mat img = cv::imread(imagePath, cv::IMREAD_UNCHANGED);
     if (img.empty()) {
@@ -61,17 +81,7 @@ void saveImage(Image& myImage, const std::string& outputPath) {
 
 int main(){
     //define your crow application
-    crow::SimpleApp app; 
-
-    // CORS headers middleware
-    app.middleware<crow::CORSHandler>([](crow::request& req) {
-        crow::response res;
-        res.set_header("Access-Control-Allow-Origin", "*");
-        res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-        res.set_header("Access-Control-Allow-Headers", "Content-Type");
-        return res;
-    });
-
+    crow::App<CORS> app; 
 
     //define your endpoint at the root directory
     CROW_ROUTE(app, "/")([](){
